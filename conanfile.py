@@ -9,7 +9,7 @@ import os
 required_conan_version = ">=1.54.0"
 
 
-class RtMidiConan(ConanFile):
+class H264nalConan(ConanFile):
     name = "h264nal"
     version = "0.15"
     url = "https://github.com/TUM-CONAN/conan-h264nal"
