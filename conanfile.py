@@ -86,6 +86,12 @@ class H264nalConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
             """${GMOCK_LIBRARY} gmock_main""",
             """GTest::gmock""")
+        replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
+            """include_directories(PUBLIC /usr/local/include)""",
+            """#include_directories(PUBLIC /usr/local/include)""")
+        replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
+            """link_directories(/usr/local/lib)""",
+            """#link_directories(/usr/local/lib)""")
 
         cmake = CMake(self)
         cmake.configure()
