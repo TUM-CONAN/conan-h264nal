@@ -31,12 +31,6 @@ class H264nalConan(ConanFile):
     def requirements(self):
         self.requires("gtest/1.14.0")
 
-    def build_requirements(self):
-        if self._settings_build.os == "Windows":
-            self.win_bash = True
-            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.tool_requires("msys2/cci.latest")
-
     def config_options(self):
         if self.settings.os == 'Windows':
             del self.options.fPIC
@@ -50,15 +44,16 @@ class H264nalConan(ConanFile):
 
     def export(self):
         update_conandata(self, {"sources": {
-            "commit": "v{}".format(self.version),
-            "url": "https://github.com/chemag/h264nal.git"
+            # for now until a version that supports windows is released
+            "commit": "master", # "v{}".format(self.version),
+            "url": "https://github.com/chemag/h264nal.git",
             }}
             )
 
     def source(self):
         git = Git(self)
         sources = self.conan_data["sources"]
-        git.clone(url=sources["url"], target=self.source_folder)
+        git.clone(url=sources["url"], target=self.source_folder, args=["--recursive"])
         git.checkout(commit=sources["commit"])
 
     def generate(self):
@@ -76,26 +71,26 @@ class H264nalConan(ConanFile):
             """#add_subdirectory(fuzz)""")
 
 
-        replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
-            """find_library(GTEST_LIBRARY gtest)""",
-            """find_package(GTest)""")
+        # replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
+        #     """find_library(GTEST_LIBRARY gtest)""",
+        #     """find_package(GTest)""")
 
-        replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
-            """find_library(GMOCK_LIBRARY gmock)""",
-            """#find_library(GMOCK_LIBRARY gmock)""")
+        # replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
+        #     """find_library(GMOCK_LIBRARY gmock)""",
+        #     """#find_library(GMOCK_LIBRARY gmock)""")
 
-        replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
-            """${GTEST_LIBRARY} gtest_main""",
-            """GTest::gtest_main""")
-        replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
-            """${GMOCK_LIBRARY} gmock_main""",
-            """GTest::gmock""")
-        replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
-            """include_directories(PUBLIC /usr/local/include)""",
-            """#include_directories(PUBLIC /usr/local/include)""")
-        replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
-            """link_directories(/usr/local/lib)""",
-            """#link_directories(/usr/local/lib)""")
+        # replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
+        #     """${GTEST_LIBRARY} gtest_main""",
+        #     """GTest::gtest_main""")
+        # replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
+        #     """${GMOCK_LIBRARY} gmock_main""",
+        #     """GTest::gmock""")
+        # replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
+        #     """include_directories(PUBLIC /usr/local/include)""",
+        #     """#include_directories(PUBLIC /usr/local/include)""")
+        # replace_in_file(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"),
+        #     """link_directories(/usr/local/lib)""",
+        #     """#link_directories(/usr/local/lib)""")
 
         cmake = CMake(self)
         cmake.configure()
@@ -105,16 +100,16 @@ class H264nalConan(ConanFile):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         # has no cmake install
         #libs
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "src"))
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "webrtc"))
-        copy(self, pattern="*.so", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "src"))
-        copy(self, pattern="*.so", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "webrtc"))
-        copy(self, pattern="*.dylib", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "src"))
-        copy(self, pattern="*.dylib", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "webrtc"))
-        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "src"))
-        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "webrtc"))
-        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), src=os.path.join(self.build_folder, "src"))
-        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), src=os.path.join(self.build_folder, "webrtc"))
+        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "src"), keep_path=False)
+        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "webrtc"), keep_path=False)
+        copy(self, pattern="*.so", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "src"), keep_path=False)
+        copy(self, pattern="*.so", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "webrtc"), keep_path=False)
+        copy(self, pattern="*.dylib", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "src"), keep_path=False)
+        copy(self, pattern="*.dylib", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "webrtc"), keep_path=False)
+        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "src"), keep_path=False)
+        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.build_folder, "webrtc"), keep_path=False)
+        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), src=os.path.join(self.build_folder, "src"), keep_path=False)
+        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), src=os.path.join(self.build_folder, "webrtc"), keep_path=False)
         #headers
         copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include", "h264nal"), 
             src=os.path.join(self.build_folder, "src"))
