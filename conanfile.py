@@ -11,7 +11,7 @@ required_conan_version = ">=1.54.0"
 
 class H264nalConan(ConanFile):
     name = "h264nal"
-    version = "0.15"
+    version = "0.17"
     url = "https://github.com/TUM-CONAN/conan-h264nal"
     homepage = "https://github.com/chemag/h264nal"
     description = "H264 NAL Parser"
@@ -44,8 +44,7 @@ class H264nalConan(ConanFile):
 
     def export(self):
         update_conandata(self, {"sources": {
-            # for now until a version that supports windows is released
-            "commit": "master", # "v{}".format(self.version),
+            "commit": "v{}".format(self.version),
             "url": "https://github.com/chemag/h264nal.git",
             }}
             )
@@ -123,5 +122,3 @@ class H264nalConan(ConanFile):
     def package_info(self):
         self.cpp_info.components["h264nal"].includedirs = [os.path.join("include")]
         self.cpp_info.components["h264nal"].libs = ["h264nal"]
-        self.cpp_info.components["h264nal_webrtc"].includedirs = [os.path.join("include", "rtc_base")]
-        self.cpp_info.components["h264nal_webrtc"].libs = ["webrtc"]
